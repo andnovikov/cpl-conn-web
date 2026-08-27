@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Couple Connect</title>
+    <link type="text/css" rel="stylesheet" href="styles.css">
+    <script>
+        // IntelliJ JCEF / some Chromium embeds throw on caches.open().
+        // Compose resources use Cache Storage; fall back to a no-op cache.
+        (function () {
+            if (!window.caches || typeof window.caches.open !== "function") return;
+            var origOpen = window.caches.open.bind(window.caches);
+            var emptyCache = {
+                match: function () { return Promise.resolve(undefined); },
+                matchAll: function () { return Promise.resolve([]); },
+                put: function () { return Promise.resolve(); },
+                add: function () { return Promise.resolve(); },
+                addAll: function () { return Promise.resolve(); },
+                delete: function () { return Promise.resolve(false); },
+                keys: function () { return Promise.resolve([]); }
+            };
+            window.caches.open = function (name) {
+                try {
+                    return origOpen(name).catch(function () { return emptyCache; });
+                } catch (e) {
+                    return Promise.resolve(emptyCache);
+                }
+            };
+        })();
+    </script>
+</head>
+<body>
+    <div id="webApp"></div>
+    <script type="application/javascript" src="composeApp.js"></script>
+</body>
+</html>
